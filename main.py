@@ -109,4 +109,8 @@ if msg=='Y' or msg=='y':
     auto=default_automate()
 else:
     auto=lecture_automate()
+    
+print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
+print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
+
 auto.drow_automate()
