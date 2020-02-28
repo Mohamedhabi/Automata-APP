@@ -8,6 +8,12 @@ class Automate:
         self.etat_initial = etat_initial
         self.etats_finaux = etats_finaux  
         self.transitions = transitions
+        self.etat_motsdetransitions={}#dictionaire exemple:{"s0":{"a","b","ab"}} pour savoir les mot qu'on peut lire apartir d'un état
+        for transition in transitions:
+            if transition[0] in self.etat_motsdetransitions:
+                self.etat_motsdetransitions[transition[0]].add(transition[1])
+            else:
+                self.etat_motsdetransitions[transition[0]]={transition[1]}            
           
     def drow_automate(self): 
         from graphviz import Digraph
