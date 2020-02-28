@@ -114,3 +114,13 @@ print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
 print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
 
 auto.drow_automate()
+
+#la réduction de l'automate
+
+#suppression des etats non accessibles
+ 
+auto.liste_Acc(auto.etat_initial)
+auto.supp_nAcc()
+print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
+print("\n\nAffichage de toutes les transitions 2:\n",auto.transitions)
+print("\n\nAffichage de tous les motsdetr 2:\n",auto.etat_motsdetransitions)
