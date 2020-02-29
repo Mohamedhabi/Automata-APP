@@ -2,7 +2,7 @@
 class Automate:        
     # init method or constructor  
     Automate_type= "Généralisé non déterministe" 
-    def __init__(self, alphabet,etats,etat_initial,etats_finaux,transitions):  
+    def __init__(self, alphabet,etats,etat_initial,etats_finaux,transitions):         
         self.alphabet = alphabet
         self.etats = etats
         self.etat_initial = etat_initial
@@ -15,30 +15,37 @@ class Automate:
             else:
                 self.etat_motsdetransitions[transition[0]]={transition[1]}            
           
-    def drow_automate(self,filename='automate.gv'): 
-        from graphviz import Digraph
-        f = Digraph(filename, filename)
-        f.attr(rankdir='LR', size='8,5')
-        #shape de l'etat initiale
-        if self.etat_initial in self.etats_finaux:
-            f.attr('node', shape='doubleoctagon')
-        else:
-            f.attr('node', shape='octagon')
-        f.node(self.etat_initial)
-        #shape des l'etats finaux
-        f.attr('node', shape='doublecircle')
-        for node in self.etats_finaux:
-            f.node(node)
-        #shape des autres états
-        f.attr('node', shape='circle')
-        for node in self.etats:
-            f.node(node)
-        #les transitions    
-        for transition in self.transitions:
-            for destination in self.transitions[transition]:
-                f.edge(transition[0], destination, label=transition[1])
-        f.view()
-    
+    def drow_automate(self,filename='automate.gv'):
+        err=0
+        try:             
+            from graphviz import Digraph
+        except Exception:
+            print("vous devez installer la bibliothèque python 'graphviz'")
+            err=1
+        if not err:
+            f = Digraph(filename, filename)
+            f.attr(rankdir='LR', size='8,5')
+            #shape de l'etat initiale
+            if self.etat_initial in self.etats_finaux:
+                f.attr('node', shape='doubleoctagon')
+            else:
+                f.attr('node', shape='octagon')
+            f.node(self.etat_initial)
+            #shape des l'etats finaux
+            f.attr('node', shape='doublecircle')
+            for node in self.etats_finaux:
+                f.node(node)
+            #shape des autres états
+            f.attr('node', shape='circle')
+            for node in self.etats:
+                f.node(node)
+            #les transitions    
+            for transition in self.transitions:
+                for destination in self.transitions[transition]:
+                    f.edge(transition[0], destination, label=transition[1])
+            f.view()
+
+          
     #ajouter l'elsemble (set_) a l'element dictio[key]
     def add_set_to_dict(self,dictio,key,set_):
         if key in dictio:
@@ -60,7 +67,7 @@ class Automate:
                         self.add_set_to_dict(self.transitions,sx,succeurs[sx])     
                 del self.transitions[s,"#"]
   
-    #trouver tout les successeur d'un etat (fermeture epsilone)
+    #trouver tout les successeur d'un etat (fermeture epsilone) et retourner toutes les transitions
     def get_sucesseur(self,s0,s):
         succes={}
         for mot in (self.etat_motsdetransitions[s]):
@@ -76,43 +83,73 @@ class Automate:
         return succes
     
     
-        
-        
+    def liste_Acc(self,S0,acc):
+        for [S0,x] in self.transitions:
+            for succ in self.transitions[S0,x]:
+                if(not (succ in acc)):
+                    acc.add(succ)
+                    acc=acc.union(self.liste_Acc(succ,acc))
+        return acc
 
-'''
-from networkx.drawing.nx_agraph import write_dot
-        import networkx as nx
-        import pylab
-        import pygraphviz
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
+    def supp_nAcc(self):
+        trans=self.transitions.copy()
+        acc=self.liste_Acc(self.etat_initial,{self.etat_initial})
+        for S in self.etats:
+            if S not in acc:
+                if S in self.etat_motsdetransitions:
+                    for x in self.etat_motsdetransitions[S]:
+                        del trans[S,x]
+                    del self.etat_motsdetransitions[S]
+                if (S in self.etats_finaux):
+                    self.etats_finaux.remove(S)
+        self.transitions=trans.copy()
+        self.etats=acc.copy()
+        self.Coacc=self.etats_finaux.copy()
+        #s'il n ya plus d'etats finaux
+        if (not self.etats_finaux):
+            print("l'automate n'a plus d'etats finaux")
+            
+            
+    #suppression des etats non coaccessibles (qui dont deja accessibles)
+    def predecesseur(self,S0): #methode pour lobtention des predecesseurs d'un sommet
+        Pred={}
+        for [S,x] in self.transitions:
+            if (S0 in self.transitions[S,x]):
+                if (S in Pred):
+                    Pred[S].add(x)
+                else:
+                    Pred[S]={x}
+        return Pred
 
-        
-        G = nx.DiGraph(directed=True)
+    #obtention de la liste des etats coaccessibles
+    
+    def liste_Coacc(self,sf,coacc):
+        pre=self.predecesseur(sf)
+        for P in pre:
+            if (P not in coacc):
+                coacc.add(P)
+                coacc=coacc.union(self.liste_Coacc(P,coacc))
+        return coacc
 
-        for transition in self.transitions:
-            G.add_edge(transition[0], self.transitions[transition], label=transition[1])
-        print(G.edges)
-        #write_dot(G,'graph.dot')
+    #suppression des etats non coaccessibles
+    def supp_nCoa(self):
+        trans=self.transitions.copy()
+        etat_MDT=self.etat_motsdetransitions.copy()
+        coacc=set()
+        for sf in self.etats_finaux: #obtention de tous les etats coacc
+            coacc=coacc.union(self.liste_Coacc(sf,{sf}))
+        for [S,x] in self.transitions:
+            for P in self.transitions[S,x]:
+                if (P not in coacc):
+                    del trans[S,x]
+                    etat_MDT[S].remove(x)
+                    if (not etat_MDT[S]):
+                        del etat_MDT[S]
+        self.etats=coacc.copy()
+        self.transitions=trans.copy()
+        self.etat_motsdetransitions=etat_MDT.copy()
+        if( not (self.etat_initial in coacc)):
+            print("l'automate n'a plus d'etat initial")
+        
+                
 
-        #edge_labels=dict([((u,v,),d['label'])for u,v,d in G.edges(data=True)])
-        pos=nx.spring_layout(G)
-        values =list(map(self.color_node,G.nodes()))
-        sizes =list(map(self.shape_node,G.nodes()))
-        #nx.draw_networkx_edge_labels(G,pos,edge_labels=edge_labels)
-        nx.draw(G,pos, with_labels=True, node_color = values ,node_size=sizes)
-        #pylab.show() 
-        plt.show() 
-        
-           def color_node(self,node):
-        if node in self.etats_finaux:
-            return "red"
-        else:
-            return "g"
-        
-    def shape_node(self,node):
-        if node == self.etat_initial:
-            return 2500
-        else:
-            return 1000
-'''

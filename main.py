@@ -84,12 +84,13 @@ def lecture_automate():
     return automate
 
 def default_automate():      
-    err=1
+   # err=1
     alphabet=["a","b","c"]
-    etats=["s0","s1","s2","s3","sf","sF"]
+    etats=["s0","s1","s2","s3","sf","sF","s4"]
     etatinit="s0"
     etatfin=["sf","sF"]
     transitions={}
+    #mine
     transitions["s0","ab"]={"sf"}
     transitions["s0","c"]={"s1"}
     transitions["s0","#"]={"s1"}
@@ -97,9 +98,20 @@ def default_automate():
     transitions["sf","c"]={"sf"}
     transitions["s1","#"]={"sf"}
     transitions["s1","#"]={"s0"}
-    transitions["s1","b"]={"s2"}
+   # transitions["s1","b"]={"s2"}
     transitions["s1","a"]={"sf"}
-    transitions["s2","ab"]={"s1"}       
+    transitions["s2","ab"]={"s1"} 
+    #sarah    
+    """
+    transitions["s0","a"]={"s1"}
+    transitions["s0","b"]={"s2"}
+    transitions["s1","a"]={"sf"}
+    transitions["s1","b"]={"sf"}
+    transitions["s2","c"]={"sf"}
+    transitions["s3","aa"]={"sf"}
+    transitions["s2","aa"]={"s4"}
+    transitions["s4","ab"]={"s5"}  
+    """     
     #print("les transitions: \n\n",transitions,"\n\n\n")
     automate = Automate(alphabet,etats,etatinit,etatfin,transitions)
     return automate
@@ -111,7 +123,9 @@ if msg=='Y' or msg=='y':
     auto=default_automate()
 else:
     auto=lecture_automate()
-    
+
+#ta3iiiiiii
+"""
 print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
 print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
 
@@ -120,4 +134,27 @@ auto.partiel_get_simple()
 print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
 print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
 auto.drow_automate("automatkkkk.gv")
+"""
+#sarahhhhhhhhhhhhhhh
 
+#auto.drow_automate()
+
+#la réduction de l'automate
+
+#suppression des etats non accessibles
+
+auto.drow_automate()
+
+auto.supp_nAcc()
+
+print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
+print("\n\nAffichage de toutes les transitions 2:\n",auto.transitions)
+print("\n\nAffichage de tous les motsdetr 2:\n",auto.etat_motsdetransitions)
+auto.drow_automate("acc.gv")
+
+#suppression des etats non coaccessibles
+auto.supp_nCoa()
+print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
+print("\n\nAffichage de toutes les transitions 3:\n",auto.transitions)
+print("\n\nAffichage de tous les motsdetr 3:\n",auto.etat_motsdetransitions)
+auto.drow_automate("coacc.gv")
