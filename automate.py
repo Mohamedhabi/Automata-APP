@@ -4,6 +4,7 @@ class Automate:
     Automate_type= "Généralisé non déterministe" 
     def __init__(self, alphabet,etats,etat_initial,etats_finaux,transitions):  
         self.Acc={etat_initial}
+        self.Coacc=[]
         self.alphabet = alphabet
         self.etats = etats
         self.etat_initial = etat_initial
@@ -50,13 +51,60 @@ class Automate:
 
     def supp_nAcc(self):
         trans=self.transitions.copy()
-        for [S,x] in self.transitions:
+        for S in self.etats:
             if (not (S in self.Acc)) :
-                del trans[S,x]
+                for x in self.etat_motsdetransitions[S]:
+                    del trans[S,x]
                 del self.etat_motsdetransitions[S]
                 if (S in self.etats_finaux):
                     self.etats_finaux.remove(S)
-        self.transitions=trans
-        self.etats=self.Acc
+        self.transitions=trans.copy()
+        self.etats=self.Acc.copy()
+        self.Coacc=self.etats_finaux.copy()
+        #s'il n ya plus d'etats finaux
+        if (not self.etats_finaux):
+            print("l'automate n'a plus d'etats finaux")
+    
 
+
+    #suppression des etats non coaccessibles (qui dont deja accessibles)
+    def predecesseur(self,S0): #methode pour lobtention des predecesseurs d'un sommet
+        Pred={}
+        for [S,x] in self.transitions:
+            if (S0 in self.transitions[S,x]):
+                if (S in Pred):
+                    Pred[S].add(x)
+                else:
+                    Pred[S]={x}
+        return Pred
+
+    #obtention de la liste des etats coaccessibles
+    
+    def liste_Coacc(self,sf):
+        pre=self.predecesseur(sf)
+        for P in pre:
+            if (P not in self.Coacc):
+                self.Coacc.append(P)
+                self.liste_Coacc(P)
+
+    #suppression des etats non coaccessibles
+    def supp_nCoa(self):
+        trans=self.transitions.copy()
+        etat_MDT=self.etat_motsdetransitions.copy()
+        for sf in self.etats_finaux: #obtention de tous les etats coacc
+            self.liste_Coacc(sf)
+        for [S,x] in self.transitions:
+            for P in self.transitions[S,x]:
+                if (P not in self.Coacc):
+                    del trans[S,x]
+                    etat_MDT[S].remove(x)
+                    if (not etat_MDT[S]):
+                        del etat_MDT[S]
+        self.etats=self.Coacc.copy()
+        self.transitions=trans.copy()
+        self.etat_motsdetransitions=etat_MDT.copy()
+        if( not (self.etat_initial in self.Coacc)):
+            print("l'automate n'a plus d'etat initial")
         
+                
+
