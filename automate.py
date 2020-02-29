@@ -15,9 +15,9 @@ class Automate:
             else:
                 self.etat_motsdetransitions[transition[0]]={transition[1]}            
           
-    def drow_automate(self): 
+    def drow_automate(self,filename='automate.gv'): 
         from graphviz import Digraph
-        f = Digraph('finite_state_machine', filename='automate.gv')
+        f = Digraph(filename, filename)
         f.attr(rankdir='LR', size='8,5')
         #shape de l'etat initiale
         if self.etat_initial in self.etats_finaux:
@@ -39,7 +39,45 @@ class Automate:
                 f.edge(transition[0], destination, label=transition[1])
         f.view()
     
- 
+    #ajouter l'elsemble (set_) a l'element dictio[key]
+    def add_set_to_dict(self,dictio,key,set_):
+        if key in dictio:
+            dictio[key]=dictio[key].union(set_)
+        else:
+            dictio[key]=set_
+    
+    #elimination des epsilone dans l'automate
+    def partiel_get_simple(self):
+        for s in self.etat_motsdetransitions:
+            if "#" in self.etat_motsdetransitions[s]:
+                print(s)
+                for tr in self.transitions[s,"#"]:
+                    succeurs=self.get_sucesseur(s,tr)
+                    print(succeurs)
+                    self.etat_motsdetransitions[s].remove("#")
+                    for sx in succeurs:
+                        self.etat_motsdetransitions[s].add(sx[1])
+                        self.add_set_to_dict(self.transitions,sx,succeurs[sx])     
+                del self.transitions[s,"#"]
+  
+    #trouver tout les successeur d'un etat (fermeture epsilone)
+    def get_sucesseur(self,s0,s):
+        succes={}
+        for mot in (self.etat_motsdetransitions[s]):
+            if mot!="#":
+                self.add_set_to_dict(succes,(s0,mot),self.transitions[s,mot])                  
+            else:
+                for etat in self.transitions[s,mot]:
+                    #si on pas de boucle d'epsilones
+                    if(etat!=s0):
+                        succ=self.get_sucesseur(s0,etat)
+                        for sx in succ:
+                            self.add_set_to_dict(succes,sx,succ[sx])       
+        return succes
+    
+    
+        
+        
 
 '''
 from networkx.drawing.nx_agraph import write_dot

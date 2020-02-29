@@ -92,11 +92,13 @@ def default_automate():
     transitions={}
     transitions["s0","ab"]={"sf"}
     transitions["s0","c"]={"s1"}
-    transitions["s0","cc"]={"s1"}
+    transitions["s0","#"]={"s1"}
     transitions["s0","a"]={"s0","s3"}
-    transitions["s0","b"]={"s2"}
     transitions["sf","c"]={"sf"}
     transitions["s1","#"]={"sf"}
+    transitions["s1","#"]={"s0"}
+    transitions["s1","b"]={"s2"}
+    transitions["s1","a"]={"sf"}
     transitions["s2","ab"]={"s1"}       
     #print("les transitions: \n\n",transitions,"\n\n\n")
     automate = Automate(alphabet,etats,etatinit,etatfin,transitions)
@@ -114,3 +116,8 @@ print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
 print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
 
 auto.drow_automate()
+auto.partiel_get_simple()
+print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
+print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
+auto.drow_automate("automatkkkk.gv")
+
