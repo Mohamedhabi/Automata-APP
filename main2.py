@@ -25,9 +25,13 @@ print("Test:\n\n")
 msg=input("Voulez vous utiliser l'automate par défaut? Y ")
 if msg=='Y' or msg=='y':
     auto=default_automate()
-auto.drow_automate()
-auto.complet()
+
 print(auto.transitions)
-auto.drow_automate("complet")
-auto.complement()
-auto.drow_automate("complement")
+
+auto.drow_automate()
+auto.miroir()
+print(auto.transitions)
+
+auto.drow_automate("mir")
+#auto.complement()
+#auto.drow_automate("complement")

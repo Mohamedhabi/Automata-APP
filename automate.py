@@ -176,4 +176,16 @@ class Automate:
     def complement(self):
         self.complet()
         self.etats_finaux=list(set(self.etats)-set(self.etats_finaux))
+    
+    #simple diterministe
+    def miroir(self):
+        fin=self.etat_initial
+        self.etat_initial=self.etat_initial+"0"
+        new_transitions={}
+        for transition in self.transitions:
+            self.add_set_to_dict(new_transitions,(list(self.transitions[transition])[0],transition[1]),{transition[0]})
+        self.transitions=new_transitions
+        self.add_set_to_dict(self.transitions,(self.etat_initial,"#"),set(self.etats_finaux))
+        self.etats_finaux={fin}
+            
 
