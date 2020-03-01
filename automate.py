@@ -151,5 +151,29 @@ class Automate:
         if( not (self.etat_initial in coacc)):
             print("l'automate n'a plus d'etat initial")
         
+    def complet(self):
+        #si l'automate est simple diterministe
+        sp="sp"
+        added=0
+        for etat in self.etat_motsdetransitions:
+            if len(self.etat_motsdetransitions[etat])<len(self.alphabet):
+                added=1
+                puis=set(self.alphabet)-self.etat_motsdetransitions[etat]
+                self.etat_motsdetransitions[etat].union(puis)
+                for pui in puis:
+                    self.transitions[etat,pui]={sp}
+        for etat_isole in self.etats:
+            if etat_isole not in self.etat_motsdetransitions:
+                added=1
+                for pui in self.alphabet:
+                        self.transitions[etat_isole,pui]={sp}
+        if added:
+            self.etats.append(sp)
+            self.etat_motsdetransitions[sp]=(self.alphabet).copy()
+            for alpha in self.alphabet:
+                self.transitions[sp,alpha]={sp}
                 
+    def complement(self):
+        self.complet()
+        self.etats_finaux=list(set(self.etats)-set(self.etats_finaux))
 
