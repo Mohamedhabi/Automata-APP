@@ -91,6 +91,7 @@ def default_automate():
     etatfin=["sf","sF"]
     transitions={}
     #mine
+    """
     transitions["s0","ab"]={"sf"}
     transitions["s0","c"]={"s1"}
     transitions["s0","#"]={"s1"}
@@ -109,9 +110,10 @@ def default_automate():
     transitions["s1","b"]={"sf"}
     transitions["s2","c"]={"sf"}
     transitions["s3","aa"]={"sf"}
-    transitions["s2","aa"]={"s4"}
+    transitions["s2","aa"]={"s4","sf"}
     transitions["s4","ab"]={"s5"}  
-    """     
+    transitions["s5","ab"]={"s4"}  
+
     #print("les transitions: \n\n",transitions,"\n\n\n")
     automate = Automate(alphabet,etats,etatinit,etatfin,transitions)
     return automate

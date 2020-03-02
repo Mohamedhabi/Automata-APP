@@ -139,9 +139,12 @@ class Automate:
         for sf in self.etats_finaux: #obtention de tous les etats coacc
             coacc=coacc.union(self.liste_Coacc(sf,{sf}))
         for [S,x] in self.transitions:
-            for P in self.transitions[S,x]:
+            succ= list(self.transitions[S,x])
+            for P in succ:
                 if (P not in coacc):
-                    del trans[S,x]
+                    trans[S,x].remove(P)
+                    if (not trans[S,x]):
+                        del trans[S,x]
                     etat_MDT[S].remove(x)
                     if (not etat_MDT[S]):
                         del etat_MDT[S]
