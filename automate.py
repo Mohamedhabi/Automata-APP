@@ -110,7 +110,7 @@ class Automate:
             print("l'automate n'a plus d'etats finaux")
             
             
-    #suppression des etats non coaccessibles (qui dont deja accessibles)
+    #suppression des etats non coaccessibles (qui sont deja accessibles)
     def predecesseur(self,S0): #methode pour lobtention des predecesseurs d'un sommet
         Pred={}
         for [S,x] in self.transitions:
@@ -187,5 +187,53 @@ class Automate:
         self.transitions=new_transitions
         self.add_set_to_dict(self.transitions,(self.etat_initial,"#"),set(self.etats_finaux))
         self.etats_finaux={fin}
+            
+
+#de l'automate généralisé a l'automate partiellement généralisé
+
+#ajouter des etats supplementaires 
+    def ajouter_etat(self,P,x,Nom,i): 
+        trans=self.transitions.copy()
+#Nom est le 'nom' de l'etat initial, par ex si P='S3' le premier etat a rajouter s'appelle S31, le deuxieme, S32..
+        for succ in trans[P,x]:
+            y=x[0]
+            z=x[1:]
+            S=Nom+str(i)
+            while(S in self.etats):
+                i+=1
+                S=Nom+str(i)
+            #ajouter la liason entre S et succ
+            self.transitions[S,z]={succ}
+            self.etat_motsdetransitions[S]={z}
+            #supprimer la liaison entre P et succ
+            self.transitions[P,x].remove(succ)
+            if (not self.transitions[P,x]):
+                del self.transitions[P,x]
+                self.etat_motsdetransitions[P].remove(x)
+                if (not self.etat_motsdetransitions[P]):
+                    del self.etat_motsdetransitions[P]
+            #ajouter la liason entre P et S
+            if ([P,y] not in self.transitions):
+                self.transitions[P,y]={S}
+                if (P not in self.etat_motsdetransitions):
+                    self.etat_motsdetransitions[P]={y}
+                else:
+                    self.etat_motsdetransitions[P].add(y)
+            else:
+                self.transitions[P,y].add(S)
+            #reitérer si z est encore lent
+            if(len(z)>1):
+                i+=1
+                self.ajouter_etat(S,z,Nom,i)
+
+
+#le passage du généraliser au partiellement généralisé
+    def gen_parGen(self):
+        for [S,x] in self.transitions:
+            if (len(x)>1):
+                Nom=S
+                self.ajouter_etat(S,x,Nom,1)
+
+
             
 

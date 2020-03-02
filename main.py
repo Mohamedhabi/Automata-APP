@@ -91,6 +91,7 @@ def default_automate():
     etatfin=["sf","sF"]
     transitions={}
     #mine
+    """ 
     transitions["s0","ab"]={"sf"}
     transitions["s0","c"]={"s1"}
     transitions["s0","#"]={"s1"}
@@ -111,7 +112,7 @@ def default_automate():
     transitions["s3","aa"]={"sf"}
     transitions["s2","aa"]={"s4"}
     transitions["s4","ab"]={"s5"}  
-    """     
+       
     #print("les transitions: \n\n",transitions,"\n\n\n")
     automate = Automate(alphabet,etats,etatinit,etatfin,transitions)
     return automate
@@ -158,3 +159,7 @@ print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
 print("\n\nAffichage de toutes les transitions 3:\n",auto.transitions)
 print("\n\nAffichage de tous les motsdetr 3:\n",auto.etat_motsdetransitions)
 auto.drow_automate("coacc.gv")
+
+#du generalisé au par generalisé
+auto.gen_parGen()
+auto.drow_automate("gen.gv")
