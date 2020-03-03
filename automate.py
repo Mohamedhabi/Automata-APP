@@ -237,3 +237,18 @@ class Automate:
 
             
 
+    def chemin(self,mot):
+        w=mot
+        S=self.etat_initial
+        while (len(w)>0):
+            x=w[0]
+            if (S in self.etat_motsdetransitions):
+                if (x in self.etat_motsdetransitions[S]):
+                    w=w[1:]
+                    S=list(self.transitions[S,x])[0]
+            else:
+                return False #or print("chemin bloqué(non reussi) ")
+        if (S in self.etats_finaux):
+            return True #or print("le mot "+mot+" est reconnu")
+        else:
+            return False #or print("chemin reussi incomplet, etat non final")

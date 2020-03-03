@@ -104,14 +104,13 @@ def default_automate():
     transitions["s2","ab"]={"s1"} 
     #sarah    
     """
-    transitions["s0","a"]={"s1"}
-    transitions["s0","b"]={"s2"}
+    transitions["s0","a"]={"s2"}
+    transitions["s0","b"]={"s1"}
+    transitions["s0","c"]={"s0"}
     transitions["s1","a"]={"sf"}
-    transitions["s1","b"]={"sf"}
+    transitions["s2","b"]={"s2"}
     transitions["s2","c"]={"sf"}
-    transitions["s3","aa"]={"sf"}
-    transitions["s2","aa"]={"s4"}
-    transitions["s4","ab"]={"s5"}  
+ 
        
     #print("les transitions: \n\n",transitions,"\n\n\n")
     automate = Automate(alphabet,etats,etatinit,etatfin,transitions)
@@ -143,7 +142,7 @@ auto.drow_automate("automatkkkk.gv")
 #la réduction de l'automate
 
 #suppression des etats non accessibles
-
+'''
 auto.drow_automate()
 
 auto.supp_nAcc()
@@ -163,3 +162,10 @@ auto.drow_automate("coacc.gv")
 #du generalisé au par generalisé
 auto.gen_parGen()
 auto.drow_automate("gen.gv")
+'''
+
+mot=input("entrer le mot ")
+while (sum([True for i in mot if i not in auto.alphabet])>0):
+    print("veuillez entrer un mot composé des lettres de l'alphabet initial")
+    mot=input()
+print(auto.chemin(mot))
