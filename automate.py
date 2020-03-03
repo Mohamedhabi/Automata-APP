@@ -2,6 +2,15 @@
 class Automate:        
     # init method or constructor  
     Automate_type= "Généralisé non déterministe" 
+    
+    def __init__(self,alphabet):         
+        self.alphabet=alphabet
+        self.etats =[]
+        self.etat_initial=set()
+        self.etats_finaux=[]
+        self.transitions={}
+        self.etat_motsdetransitions={}
+        
     def __init__(self, alphabet,etats,etat_initial,etats_finaux,transitions):         
         self.alphabet = alphabet
         self.etats = etats
@@ -26,11 +35,20 @@ class Automate:
             f = Digraph(filename, filename)
             f.attr(rankdir='LR', size='8,5')
             #shape de l'etat initiale
-            if self.etat_initial in self.etats_finaux:
-                f.attr('node', shape='doubleoctagon')
+            if type(self.etat_initial) == str:
+                if self.etat_initial in self.etats_finaux:
+                    f.attr('node', shape='doubleoctagon')
+                else:
+                    f.attr('node', shape='octagon')
+                f.node(self.etat_initial)
             else:
-                f.attr('node', shape='octagon')
-            f.node(self.etat_initial)
+                for node in self.etat_initial:
+                    if node in self.etats_finaux:
+                        f.attr('node', shape='doubleoctagon')
+                    else:
+                        f.attr('node', shape='octagon')
+                    f.node(node)
+                    
             #shape des l'etats finaux
             f.attr('node', shape='doublecircle')
             for node in self.etats_finaux:
@@ -57,10 +75,8 @@ class Automate:
     def partiel_get_simple(self):
         for s in self.etat_motsdetransitions:
             if "#" in self.etat_motsdetransitions[s]:
-                print(s)
                 for tr in self.transitions[s,"#"]:
                     succeurs=self.get_sucesseur(s,tr)
-                    print(succeurs)
                     self.etat_motsdetransitions[s].remove("#")
                     for sx in succeurs:
                         self.etat_motsdetransitions[s].add(sx[1])
@@ -69,6 +85,8 @@ class Automate:
   
     #trouver tout les successeur d'un etat (fermeture epsilone) et retourner toutes les transitions
     def get_sucesseur(self,s0,s):
+        if s in self.etats_finaux:
+            self.etats_finaux.append(s0)
         succes={}
         for mot in (self.etat_motsdetransitions[s]):
             if mot!="#":
@@ -84,16 +102,17 @@ class Automate:
     
     
     def liste_Acc(self,S0,acc):
-        for [S0,x] in self.transitions:
-            for succ in self.transitions[S0,x]:
-                if(not (succ in acc)):
-                    acc.add(succ)
-                    acc=acc.union(self.liste_Acc(succ,acc))
-        return acc
+        if S0 in self.etat_motsdetransitions:
+            for x in self.etat_motsdetransitions[S0]:
+                for succ in self.transitions[S0,x]:
+                    if(succ not in acc):
+                        acc.add(succ)
+                        self.liste_Acc(succ,acc)
 
     def supp_nAcc(self):
         trans=self.transitions.copy()
-        acc=self.liste_Acc(self.etat_initial,{self.etat_initial})
+        acc={self.etat_initial}
+        self.liste_Acc(self.etat_initial,acc)
         for S in self.etats:
             if S not in acc:
                 if S in self.etat_motsdetransitions:
@@ -103,14 +122,13 @@ class Automate:
                 if (S in self.etats_finaux):
                     self.etats_finaux.remove(S)
         self.transitions=trans.copy()
-        self.etats=acc.copy()
-        self.Coacc=self.etats_finaux.copy()
+        self.etats=list(acc.copy())
         #s'il n ya plus d'etats finaux
         if (not self.etats_finaux):
             print("l'automate n'a plus d'etats finaux")
             
             
-    #suppression des etats non coaccessibles (qui dont deja accessibles)
+    #suppression des etats non coaccessibles (qui sont deja accessibles)
     def predecesseur(self,S0): #methode pour lobtention des predecesseurs d'un sommet
         Pred={}
         for [S,x] in self.transitions:
@@ -145,10 +163,10 @@ class Automate:
                     trans[S,x].remove(P)
                     if (not trans[S,x]):
                         del trans[S,x]
-                    etat_MDT[S].remove(x)
+                        etat_MDT[S].remove(x)
                     if (not etat_MDT[S]):
                         del etat_MDT[S]
-        self.etats=coacc.copy()
+        self.etats=list(coacc.copy())
         self.transitions=trans.copy()
         self.etat_motsdetransitions=etat_MDT.copy()
         if( not (self.etat_initial in coacc)):
@@ -191,4 +209,83 @@ class Automate:
         self.add_set_to_dict(self.transitions,(self.etat_initial,"#"),set(self.etats_finaux))
         self.etats_finaux={fin}
             
+
+    #de l'automate généralisé a l'automate partiellement généralisé
+
+    #ajouter des etats supplementaires 
+    def ajouter_etat(self,P,x,Nom,i): 
+        trans=self.transitions[P,x].copy()
+        #Nom est le 'nom' de l'etat initial, par ex si P='S3' le premier etat a rajouter s'appelle S31, le deuxieme, S32..
+        for succ in trans:
+            y=x[0]
+            z=x[1:]
+            S=Nom+str(i)
+            while(S in self.etats):
+                i+=1
+                S=Nom+str(i)
+            self.etats.append(S)
+            #ajouter la liason entre S et succ
+            self.transitions[S,z]={succ}
+            self.etat_motsdetransitions[S]={z}
+            #supprimer la liaison entre P et succ
+            self.transitions[P,x].remove(succ)
+            if (not self.transitions[P,x]):
+                del self.transitions[P,x]
+                self.etat_motsdetransitions[P].remove(x)
+                if (not self.etat_motsdetransitions[P]):
+                    del self.etat_motsdetransitions[P]
+            #ajouter la liason entre P et S
+            if ((P,y) not in self.transitions):
+                self.transitions[P,y]={S}
+                if (P not in self.etat_motsdetransitions):
+                    self.etat_motsdetransitions[P]={y}
+                else:
+                    self.etat_motsdetransitions[P].add(y)
+            else:
+                self.transitions[P,y].add(S)
+            #reitérer si z est encore lent
+            if(len(z)>1):
+                i+=1
+                self.ajouter_etat(S,z,Nom,i)
+
+
+#le passage du généraliser au partiellement généralisé
+    def gen_parGen(self):
+        for [S,x] in self.transitions.copy():
+            if (len(x)>1):
+                Nom=S
+                self.ajouter_etat(S,x,Nom,1)
+
+    def nondet_det(self,automate,etats,nometat):
+        if nometat not in automate.etats:
+            automate.etats.append(nometat)
+            if self.etat_initial in etats:
+                automate.etat_initial.append(nometat)
+            if  (set(self.etats_finaux)).intersection(etats):
+                automate.etats_finaux.append(nometat)
+            for lettre in self.alphabet:
+                trans=set()
+                for etat in etats:
+                    if etat in self.etat_motsdetransitions and lettre in self.etat_motsdetransitions[etat]:
+                        trans=trans.union(self.transitions[etat,lettre])                
+                if trans:
+                    nometat2=""
+                    lsort=list(trans)
+                    lsort.sort()
+                    for etat in lsort:
+                        nometat2+=etat+"/"
+                    automate.transitions[nometat,lettre]={nometat2}
+                    print("2",etats,trans,lettre)
+                    self.add_set_to_dict(automate.etat_motsdetransitions,nometat,{lettre})
+                    self.nondet_det(automate,trans,nometat2)
+            
+    def deterministe(self):
+        print(self.etats,self.etat_initial)
+        automate=Automate(self.alphabet,[],[],[],{})
+        self.nondet_det(automate,{self.etat_initial},self.etat_initial+"/")
+        return automate
+                              
+        
+            
+
 
