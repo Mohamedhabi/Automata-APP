@@ -86,8 +86,8 @@ def lecture_automate():
 def default_automate():      
    # err=1
     alphabet=["a","b","c"]
-    etats=["s0","s1","s2","sf","sF"]
-    etatinit="s0"
+    etats=["s0","s1","s2","s3","sf","sF"]
+    etatinit=["s0","s2","s3"]
     etatfin=["sf","sF"]
     transitions={}
     #mine
@@ -104,14 +104,17 @@ def default_automate():
     transitions["s2","ab"]={"s1"} 
     #sarah    
     """
-    transitions["s0","a"]={"s2"}
-    transitions["s0","b"]={"s1"}
+    transitions["s0","a"]={"s1"}
     transitions["s0","c"]={"s0"}
-    transitions["s1","a"]={"sf"}
-    transitions["s2","b"]={"s2"}
-    transitions["s2","c"]={"sf"}
-    transitions["sF","a"]={"s0"}
-    transitions["sF","b"]={"sF"}
+    transitions["s1","b"]={"s1"}
+    transitions["s1","a"]={"s2"}
+    transitions["s1","c"]={"sf"}
+    transitions["s2","c"]={"s2"}
+    transitions["s2","a"]={"sf"}
+    transitions["s2","b"]={"sF"}
+    transitions["s3","b"]={"s3"}
+    transitions["s3","a"]={"sF"}
+    transitions["sf","a"]={"sF"}
  
        
     #print("les transitions: \n\n",transitions,"\n\n\n")
@@ -146,7 +149,7 @@ auto.drow_automate("automatkkkk.gv")
 #suppression des etats non accessibles
 
 #auto.drow_automate()
-
+'''
 auto.supp_nAcc()
 
 print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
@@ -160,14 +163,14 @@ print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
 print("\n\nAffichage de toutes les transitions 3:\n",auto.transitions)
 print("\n\nAffichage de tous les motsdetr 3:\n",auto.etat_motsdetransitions)
 #auto.drow_automate("coacc.gv")
-'''
+
 #du generalisé au par generalisé
 auto.gen_parGen()
 auto.drow_automate("gen.gv")
 '''
-'''
+
 mot=input("entrer le mot ")
 while (sum([True for i in mot if i not in auto.alphabet])>0):
     print("veuillez entrer un mot composé des lettres de l'alphabet initial")
     mot=input()
-print(auto.chemin(mot))'''
+print(auto.chemin(mot))
