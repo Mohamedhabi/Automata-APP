@@ -86,7 +86,7 @@ def lecture_automate():
 def default_automate():      
    # err=1
     alphabet=["a","b","c"]
-    etats=["s0","s1","s2","s3","sf","sF","s4"]
+    etats=["s0","s1","s2","sf","sF"]
     etatinit="s0"
     etatfin=["sf","sF"]
     transitions={}
@@ -110,6 +110,8 @@ def default_automate():
     transitions["s1","a"]={"sf"}
     transitions["s2","b"]={"s2"}
     transitions["s2","c"]={"sf"}
+    transitions["sF","a"]={"s0"}
+    transitions["sF","b"]={"sF"}
  
        
     #print("les transitions: \n\n",transitions,"\n\n\n")
@@ -142,30 +144,30 @@ auto.drow_automate("automatkkkk.gv")
 #la réduction de l'automate
 
 #suppression des etats non accessibles
-'''
-auto.drow_automate()
+
+#auto.drow_automate()
 
 auto.supp_nAcc()
 
 print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
 print("\n\nAffichage de toutes les transitions 2:\n",auto.transitions)
 print("\n\nAffichage de tous les motsdetr 2:\n",auto.etat_motsdetransitions)
-auto.drow_automate("acc.gv")
+#auto.drow_automate("acc.gv")
 
 #suppression des etats non coaccessibles
 auto.supp_nCoa()
 print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
 print("\n\nAffichage de toutes les transitions 3:\n",auto.transitions)
 print("\n\nAffichage de tous les motsdetr 3:\n",auto.etat_motsdetransitions)
-auto.drow_automate("coacc.gv")
-
+#auto.drow_automate("coacc.gv")
+'''
 #du generalisé au par generalisé
 auto.gen_parGen()
 auto.drow_automate("gen.gv")
 '''
-
+'''
 mot=input("entrer le mot ")
 while (sum([True for i in mot if i not in auto.alphabet])>0):
     print("veuillez entrer un mot composé des lettres de l'alphabet initial")
     mot=input()
-print(auto.chemin(mot))
+print(auto.chemin(mot))'''

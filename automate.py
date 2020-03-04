@@ -84,11 +84,12 @@ class Automate:
     
     
     def liste_Acc(self,S0,acc):
-        for [S0,x] in self.transitions:
-            for succ in self.transitions[S0,x]:
-                if(not (succ in acc)):
-                    acc.add(succ)
-                    acc=acc.union(self.liste_Acc(succ,acc))
+        if (S0 in self.etat_motsdetransitions):
+            for x in self.etat_motsdetransitions[S0]:
+                for succ in self.transitions[S0,x]:
+                    if(not (succ in acc)):
+                        acc.add(succ)
+                        acc=acc.union(self.liste_Acc(succ,acc))
         return acc
 
     def supp_nAcc(self):
