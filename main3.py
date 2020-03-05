@@ -19,7 +19,7 @@ def default_automate2():
     #exo2 TD      
     alphabet=["0","1"]
     etats=["s0","s01","s1","s11","s2"]
-    etatinit="s0"
+    etatinit=["s0"]
     etatfin=["s1"]
     transitions={}
     transitions["s0","0"]={"s1","s01"}
@@ -35,7 +35,7 @@ def default_automate3():
     #exo2 TD     
     alphabet=["0","1"]
     etats=["s0","s1","s2"]
-    etatinit="s0"
+    etatinit=["s0"]
     etatfin=["s2"]
     transitions={}
     transitions["s0","01"]={"s0"}
@@ -50,7 +50,7 @@ def default_automate4():
     #exo2 EMD  
     alphabet=["a","b","c"]
     etats=["s0","s1","s2","s3","s4","s5"]
-    etatinit="s0"
+    etatinit=["s0"]
     etatfin=["s4","s0"]
     transitions={}
     transitions["s0","aa"]={"s0"}
@@ -70,21 +70,18 @@ def default_automate4():
 
 print("Test:\n\n")
 
-auto=default_automate4()
-auto.drow_automate("1")
-auto.supp_nAcc()
-auto.supp_nCoa()
-auto.drow_automate("2")
+auto=default_automate2()
+#auto.drow_automate("1")
+#auto.supp_nAcc()
+#auto.supp_nCoa()
+#auto.miroir()
+#auto.drow_automate("2")
+#auto.gen_parGen()
+#auto.drow_automate("1")
+#auto.partiel_gen_simple()
+#auto2=auto.deterministe()
+#auto2.drow_automate("3")
 
-auto.gen_parGen()
-auto.drow_automate("3")
+#auto3=auto2.miroir()
 
-auto.partiel_get_simple()
-auto.drow_automate("4")
-
-auto2=auto.deterministe()
-auto2.drow_automate("5")
-
-#auto2.supp_nAcc()
-#auto2.supp_nCoa()
-#auto2.drow_automate("4")
+#auto3.drow_automate("4")
