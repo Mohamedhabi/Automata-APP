@@ -9,6 +9,7 @@ class Automate:
         self.etat_initial = etat_initial
         self.etats_finaux = etats_finaux  
         self.transitions = transitions
+        self.reduit=False
         self.etat_motsdetransitions={}#dictionaire exemple:{"s0":{"a","b","ab"}} pour savoir les mot qu'on peut lire apartir d'un état
         self.atomate_type=self.__get_type() #"G","PG","SND","SD"
         for transition in transitions:
@@ -21,7 +22,6 @@ class Automate:
         type_="SD"
         for transition in self.transitions:
             if len(transition[1])>1:
-                    print(transition)
                     type_="G"
                     break
             elif transition[1]=="#":
@@ -78,7 +78,7 @@ class Automate:
             dictio[key]=set_
     
     #elimination des epsilone dans l'automate
-    def partiel_gen_simple(self):
+    def __partiel_gen_simple(self):
         for s in self.etat_motsdetransitions:
             if "#" in self.etat_motsdetransitions[s]:
                 for tr in self.transitions[s,"#"]:
@@ -88,6 +88,7 @@ class Automate:
                         self.etat_motsdetransitions[s].add(sx[1])
                         self.__add_set_to_dict(self.transitions,sx,succeurs[sx])     
                 del self.transitions[s,"#"]
+        self.atomate_type="SND"
   
     #trouver tout les successeur d'un etat (fermeture epsilone) et retourner toutes les transitions
     def get_sucesseur(self,s0,s):
@@ -113,7 +114,7 @@ class Automate:
                 for succ in self.transitions[S0,x]:
                     if(succ not in acc):
                         acc.add(succ)
-                        self.liste_Acc(succ,acc)
+                        self.__liste_Acc(succ,acc)
 
     def __supp_nAcc(self):
         trans=self.transitions.copy()
@@ -178,13 +179,18 @@ class Automate:
         self.etats=list(coacc.copy())
         self.transitions=trans.copy()
         self.etat_motsdetransitions=etat_MDT.copy()
+        #supprimer les etats initiaux non coacc
+        for S in self.etat_initial:
+            if S not in coacc:
+                self.etat_initial.remove(S)
         if( not set(self.etat_initial).intersection(coacc)):
             print("l'automate n'a plus d'etat initial")
+
         
     def __complet(self):
         #si l'automate est simple deterministe
         sp="sp"
-        while sp not in self.etats:
+        while sp in self.etats:
             sp+="p"
         added=0
         for etat in self.etat_motsdetransitions:
@@ -206,20 +212,19 @@ class Automate:
                 self.transitions[sp,alpha]={sp}
      
     def __complement(self):
-        self.__complet()
         self.etats_finaux=list(set(self.etats)-set(self.etats_finaux))
     
     
     def __miroir(self):
         #simple deterministe
         fin=self.etat_initial
-        auto_mir.etat_initial=self.etats_finaux
+        self.etat_initial=self.etats_finaux
         new_transitions={}
         for transition in self.transitions:
             self.__add_set_to_dict(new_transitions,(list(self.transitions[transition])[0],transition[1]),{transition[0]})
-        auto_mir.transitions=new_transitions
+        self.transitions=new_transitions
         #self.__add_set_to_dict(self.transitions,(self.etat_initial,"#"),set(self.etats_finaux))
-        auto_mir.etats_finaux=fin
+        self.etats_finaux=fin
             
 
     #de l'automate généralisé a l'automate partiellement généralisé
@@ -258,7 +263,7 @@ class Automate:
             #reitérer si z est encore lent
             if(len(z)>1):
                 i+=1
-                self.ajouter_etat(S,z,Nom,i)
+                self.__ajouter_etat(S,z,Nom,i)
 
 
     #le passage du généraliser au partiellement généralisé
@@ -267,6 +272,7 @@ class Automate:
             if (len(x)>1):
                 Nom=S
                 self.__ajouter_etat(S,x,Nom,1)
+        self.atomate_type="PG"
 
     #Fonction récursive pour generer un automate deterministe
     def __nondet_det(self,automate,etats,nometat):
@@ -288,77 +294,85 @@ class Automate:
                     for etat in lsort:
                         nometat2+=etat+"/"
                     automate.transitions[nometat,lettre]={nometat2}
-                    print("2",etats,trans,lettre)
                     self.__add_set_to_dict(automate.etat_motsdetransitions,nometat,{lettre})
-                    self.nondet_det(automate,trans,nometat2)
+                    self.__nondet_det(automate,trans,nometat2)
                             
     def copy(self):    
         return Automate(self.alphabet.copy(),self.etats.copy(), self.etat_initial.copy(),self.etats_finaux.copy(),self.transitions.copy())        
 
-
+    def __reduire(self):
+        if not self.reduit:
+            self.__supp_nAcc()
+            self.__supp_nCoa()
+            self.reduit=True
 #Public methods
     def get_automtereduit(self):
         auto=self.copy()
-        auto.__supp_nAcc()
-        auto.__supp_nCoa()
+        auto.__reduire()
         return auto 
-    
-    def get_complet(self):
-        auto_comp=self.copy()
-        auto_comp.__complet()    
-        return auto_comp   
-    
-    def get_complement(self):
-        auto_comp=self.copy()
-        auto_comp.__complement()    
-        return auto_comp  
-     
-    def get_miroir(self):
-        auto_mir=self.copy()
-        auto_mir.__miroir()    
-        return auto_mir     
     
     def get_parc_gen(self):
         automate=self.copy()
+        automate.__reduire()
         if automate.atomate_type=="G":
             automate.__gen_parGen()    
         return automate  
     
     def get_simple(self):
         automate=self.copy()
+        automate.__reduire()
         if automate.atomate_type=="G":
             automate.__gen_parGen()
         if automate.atomate_type=="PG":
-            automate.partiel_gen_simple()    
-        return automate  
+            automate.__partiel_gen_simple()    
+        return automate
     
     def get_deterministe(self):
         automate=self.copy()
+        automate.__reduire()
         if automate.atomate_type=="G":
             automate.__gen_parGen()
         if automate.atomate_type=="PG":
-            automate.partiel_gen_simple()
+            automate.__partiel_gen_simple()
         if automate.atomate_type=="SND":
-            automate=Automate(automate.alphabet.copy(),[],[],[],{})
+            automate2=Automate(automate.alphabet.copy(),[],[],[],{})
             for etat in automate.etat_initial:
-                automate.__nondet_det(automate,{etat},etat+"/")
-            return automate
-        
+                automate.__nondet_det(automate2,{etat},etat+"/")
+            return automate2
+        return automate
+    
+    def get_complet(self):
+        auto_comp=self.get_deterministe()
+        auto_comp.__complet()    
+        return auto_comp   
+    
+    def get_complement(self):
+        auto_comp=self.get_complet()    
+        return auto_comp.__complement()  
+     
+    def get_miroir(self):
+        auto_mir=self.get_deterministe()
+        auto_mir.__miroir()    
+        return auto_mir     
     
     def chemin(self,mot):
-        for S in self.etat_initial :
+        if self.atomate_type != "SD":
+            auto=self.get_deterministe()
+        else: 
+            auto=self
+        for S in auto.etat_initial :
             continu=True
             w=mot
             while ((len(w)>0) and continu):
                 x=w[0]
-                if (S in self.etat_motsdetransitions):
-                    if (x in self.etat_motsdetransitions[S]):
+                if (S in auto.etat_motsdetransitions):
+                    if (x in auto.etat_motsdetransitions[S]):
                         w=w[1:]
-                        S=list(self.transitions[S,x])[0]
+                        S=list(auto.transitions[S,x])[0]
                     else:
                         continu=False 
                 else:
                     continu=False
-            if ((S in self.etats_finaux) and len(w)==0) :
+            if ((S in auto.etats_finaux) and len(w)==0) :
                 return True #or print("le mot "+mot+" est reconnu")
         return False

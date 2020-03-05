@@ -6,6 +6,7 @@ def lecture_automate():
     etats=[]
     etatinit=''
     etatfin=[]
+    lettre=''
     transitions={}#dictionary
     #Lecture de l'alphabet
     while err:
@@ -86,35 +87,32 @@ def lecture_automate():
 def default_automate():      
    # err=1
     alphabet=["a","b","c"]
-    etats=["s0","s1","s2","s3","sf","sF"]
-    etatinit=["s0","s2","s3"]
-    etatfin=["sf","sF"]
+    etats=["s0","s1","s2","s3","sf","s4","s5","s6","s7"]
+    etatinit=["s0"]
+    etatfin=["sf"]
     transitions={}
-    #mine
-    """ 
-    transitions["s0","ab"]={"sf"}
-    transitions["s0","c"]={"s1"}
-    transitions["s0","#"]={"s1"}
-    transitions["s0","a"]={"s0","s3"}
-    transitions["sf","c"]={"sf"}
-    transitions["s1","#"]={"sf"}
-    transitions["s1","#"]={"s0"}
-   # transitions["s1","b"]={"s2"}
-    transitions["s1","a"]={"sf"}
-    transitions["s2","ab"]={"s1"} 
-    #sarah    
-    """
-    transitions["s0","a"]={"s1"}
-    transitions["s0","c"]={"s0"}
-    transitions["s1","b"]={"s1"}
-    transitions["s1","a"]={"s2"}
-    transitions["s1","c"]={"sf"}
-    transitions["s2","c"]={"s2"}
-    transitions["s2","a"]={"sf"}
-    transitions["s2","b"]={"sF"}
+    '''
+    transitions["s0","bc"]={"s3","s7"}
+    transitions["s1","b"]={"s2"}
+    transitions["s1","a"]={"s0"}
+    transitions["s2","ba"]={"s5"}
+    transitions["s3","aac"]={"s5","s4"}
+    transitions["s5","bac"]={"s6"}
+    transitions["s4","cca"]={"sf"}
+    transitions["s4","cb"]={"s7"}
+    transitions["s7","bc"]={"sf"}'''
+    
+    transitions["s0","b"]={"s3"}
+    transitions["s1","b"]={"s2"}
+    transitions["s1","a"]={"s0"}
+    transitions["s2","b"]={"s5"}
+    transitions["s3","a"]={"s5"}
     transitions["s3","b"]={"s3"}
-    transitions["s3","a"]={"sF"}
-    transitions["sf","a"]={"sF"}
+    transitions["s5","c"]={"s6"}
+    transitions["s4","b"]={"sf"}
+    transitions["s4","c"]={"s7"}
+    transitions["s6","c"]={"sf"}
+ 
  
        
     #print("les transitions: \n\n",transitions,"\n\n\n")
@@ -129,48 +127,35 @@ if msg=='Y' or msg=='y':
 else:
     auto=lecture_automate()
 
-#ta3iiiiiii
-"""
-print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
-print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
+auto.drow_automate("Automate.gv")
+#menu
+finished=False
+while (not finished):
+    choix=input("Veuillez introduire votre choix :\n 1- Réduction de l'automate \n 2- le passage du non det au det \n 3- le complement \n 4- le mirroir \n 5- la reconnaissance des mots \n")
+    if (choix=='1'):
+        auto.get_automtereduit().drow_automate("reduit.gv")
+    elif (choix=='2'):
+        auto.get_deterministe().drow_automate("deterministe.gv")
+    elif (choix=='3'):
+        auto.get_complement().drow_automate("complement.gv")
+    elif (choix=='4'):
+        auto.get_miroir().drow_automate("mirroir.gv")
+    elif (choix=='5'):
+        mot=input("entrer le mot ")
+        while (sum([True for i in mot if i not in auto.alphabet])>0):
+            print("veuillez entrer un mot composé des lettres de l'alphabet initial")
+            mot=input()
+        if (auto.chemin(mot)):
+            print("le mot ",mot," est reconnu par cet automate")
+        else:
+            print("le mot ",mot," n'est pas reconnu par cet automate")
+    
+    inp=input("voulez vous faire une autre opération? Y/N ")
+    if (inp != 'y' and inp != 'Y'):
+        finished=True
+        
+    
+    
 
-auto.drow_automate()
-auto.partiel_get_simple()
-print("\n\nAffichage de toutes les transitions:\n",auto.transitions)
-print("\n\nAffichage état mot a lire:\n",auto.etat_motsdetransitions)
-auto.drow_automate("automatkkkk.gv")
-"""
-#sarahhhhhhhhhhhhhhh
 
-#auto.drow_automate()
-
-#la réduction de l'automate
-
-#suppression des etats non accessibles
-
-#auto.drow_automate()
-'''
-auto.supp_nAcc()
-
-print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
-print("\n\nAffichage de toutes les transitions 2:\n",auto.transitions)
-print("\n\nAffichage de tous les motsdetr 2:\n",auto.etat_motsdetransitions)
-#auto.drow_automate("acc.gv")
-
-#suppression des etats non coaccessibles
-auto.supp_nCoa()
-print("\n\nAffichage des etats finaux:\n",auto.etats_finaux)
-print("\n\nAffichage de toutes les transitions 3:\n",auto.transitions)
-print("\n\nAffichage de tous les motsdetr 3:\n",auto.etat_motsdetransitions)
-#auto.drow_automate("coacc.gv")
-
-#du generalisé au par generalisé
-auto.gen_parGen()
-auto.drow_automate("gen.gv")
-'''
-
-mot=input("entrer le mot ")
-while (sum([True for i in mot if i not in auto.alphabet])>0):
-    print("veuillez entrer un mot composé des lettres de l'alphabet initial")
-    mot=input()
-print(auto.chemin(mot))
+    
