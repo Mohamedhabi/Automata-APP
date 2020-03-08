@@ -30,7 +30,8 @@ class Automate:
                 type_="SND"
         return type_
           
-    def drow_automate(self,filename='automate.gv'):
+    def drow_automate(self,filename='automate'):
+        
         err=0
         try:             
             from graphviz import Digraph
@@ -38,7 +39,7 @@ class Automate:
             print("vous devez installer la bibliothèque python 'graphviz'")
             err=1
         if not err:
-            f = Digraph(filename, filename)
+            f = Digraph(filename, filename,format='png')
             f.attr(rankdir='LR', size='8,5')
             #shape de l'etat initiale
             if type(self.etat_initial) == str:
@@ -67,7 +68,9 @@ class Automate:
             for transition in self.transitions:
                 for destination in self.transitions[transition]:
                     f.edge(transition[0], destination, label=transition[1])
-            f.view()
+            
+            g=f.render(filename=filename)
+
 
           
     #ajouter l'elsemble (set_) a l'element dictio[key]
@@ -95,16 +98,17 @@ class Automate:
         if s in self.etats_finaux:
             self.etats_finaux.append(s0)
         succes={}
-        for mot in (self.etat_motsdetransitions[s]):
-            if mot!="#":
-                self.__add_set_to_dict(succes,(s0,mot),self.transitions[s,mot])                  
-            else:
-                for etat in self.transitions[s,mot]:
-                    #si on pas de boucle d'epsilones
-                    if(etat!=s0):
-                        succ=self.get_sucesseur(s0,etat)
-                        for sx in succ:
-                            self.__add_set_to_dict(succes,sx,succ[sx])       
+        if s in self.etat_motsdetransitions:
+            for mot in (self.etat_motsdetransitions[s]):
+                if mot!="#":
+                    self.__add_set_to_dict(succes,(s0,mot),self.transitions[s,mot])                  
+                else:
+                    for etat in self.transitions[s,mot]:
+                        #si on pas de boucle d'epsilones
+                        if(etat!=s0):
+                            succ=self.get_sucesseur(s0,etat)
+                            for sx in succ:
+                                self.__add_set_to_dict(succes,sx,succ[sx])       
         return succes
     
     
@@ -120,7 +124,6 @@ class Automate:
         trans=self.transitions.copy()
         #acc={self.etat_initial}
         acc= set(self.etat_initial)
-        print(acc)
         for etat in self.etat_initial:
             self.__liste_Acc(etat,acc)
         for S in self.etats:
@@ -298,7 +301,10 @@ class Automate:
                     self.__nondet_det(automate,trans,nometat2)
                             
     def copy(self):    
-        return Automate(self.alphabet.copy(),self.etats.copy(), self.etat_initial.copy(),self.etats_finaux.copy(),self.transitions.copy())        
+        tran={}
+        for (S,x) in self.transitions:
+            tran[S,x]=self.transitions[S,x].copy()
+        return Automate(self.alphabet.copy(),self.etats.copy(), self.etat_initial.copy(),self.etats_finaux.copy(),tran)        
 
     def __reduire(self):
         if not self.reduit:
@@ -347,8 +353,9 @@ class Automate:
         return auto_comp   
     
     def get_complement(self):
-        auto_comp=self.get_complet()    
-        return auto_comp.__complement()  
+        auto_comp=self.get_complet()   
+        auto_comp.__complement()  
+        return auto_comp  
      
     def get_miroir(self):
         auto_mir=self.get_deterministe()

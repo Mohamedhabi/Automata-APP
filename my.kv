@@ -1,0 +1,225 @@
+
+<ReadAutomateWindow>:
+    name: "lect_auto"
+    etatF:etatF
+    alphabetF:alphabetF
+    etat_initF:etat_initF
+    etat_finF:etat_finF
+    errmsg:errmsg
+    BoxLayout:
+        padding: 20
+        spacing: 90 
+        orientation:"vertical"
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+    
+            Label:
+                text: "Lecture d'un automate"
+                font_size:40
+        BoxLayout:    
+            orientation:"vertical"
+            size_hint_y: None
+            height: "270dp"
+            spacing: 20 
+            BoxLayout:
+                size_hint_y: None
+                height: "40dp"
+                Label:
+                    text: "Alphabet: "
+                    font_size: (root.width**2 + root.height**2) / 14**4
+
+                TextInput:
+                    id: alphabetF
+                    multiline: False
+                    font_size: (root.width**2 + root.height**2) / 14**4
+            BoxLayout:
+                size_hint_y: None
+                height: "40dp"
+                Label:
+                    text: "État initial: "
+                    font_size: (root.width**2 + root.height**2) / 14**4
+
+                TextInput:
+                    id: etat_initF
+                    multiline: False
+                    font_size: (root.width**2 + root.height**2) / 14**4
+            BoxLayout:
+                size_hint_y: None
+                height: "40dp"
+                Label:
+                    text: "États finaux:"
+                    font_size: (root.width**2 + root.height**2) / 14**4
+
+                TextInput:
+                    id: etat_finF
+                    multiline: False
+                    font_size: (root.width**2 + root.height**2) / 14**4
+            BoxLayout:
+                size_hint_y: None
+                height: "40dp"
+                Label:
+                    text: "États: "
+                    font_size: (root.width**2 + root.height**2) / 14**4
+
+                TextInput:
+                    id: etatF
+                    multiline: False
+                    font_size: (root.width**2 + root.height**2) / 14**4
+        BoxLayout:
+            height: "60dp"
+            size_hint_y: None
+            Label:
+                color:255,99,71, 1
+                id:errmsg
+                text:""
+            Button:
+                text: "Automate par default"
+                on_press: root.default()
+            Button:
+                text: "OK"
+                on_press: root.submit()
+            
+        
+
+<ReadTransitionsWindow>:
+    name: "trans"
+    courant:courant
+    mot:mot
+    suiv:suiv
+    nbtrans:nbtrans
+    err_msg:err_msg
+    BoxLayout:
+        spacing:30
+        padding:30
+        orientation:"vertical"
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+    
+            Label:
+                text: "Lecture des Transitions"
+                font_size:40            
+
+        BoxLayout:
+            orientation:"vertical"
+            padding:30
+            BoxLayout:
+                spacing:10
+                padding:50
+                BoxLayout:
+                    orientation:"vertical"
+                    Label:
+                        text: "Etat courant"
+                    TextInput:
+                        id: courant
+                        font_size:30
+                        multiline: False
+                        
+                BoxLayout:
+                    orientation:"vertical"
+                    Label:
+                        text: "Mot"
+                    TextInput:
+                        id: mot
+                        font_size:30
+                        multiline: False
+                BoxLayout:
+                    orientation:"vertical"
+                    Label:
+                        text: "Etat suivant"
+                    TextInput:
+                        id: suiv
+                        font_size:30
+                        multiline: False
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                Label:
+                    id:nbtrans
+                    text:"0 Transitions"
+                Button:
+                    on_press: root.addTrans()
+                    text:"Ajouter la transition"
+                
+
+        BoxLayout:   
+            size_hint_y: None
+            height: "60dp"
+            BoxLayout:
+                Label:
+                    id:err_msg
+                    text: ""
+                Button:  
+                    on_press: root.submit()       
+                    text: "OK"
+
+
+<MainWindow>:
+    label_op:label_op
+    mot:mot
+    motexist:motexist
+    GridLayout:
+        image1:image1
+        image2:image2
+        rows:6
+        cols:2
+        padding:5
+        spacing:10
+        GridLayout:
+            rows:2
+            BoxLayout:
+                orientation:"vertical"
+                BoxLayout:
+                    size_hint_y: None
+                    height: "1dp"
+                    Label:
+                        text:"Automate initial:"
+                Image:
+                    id:image1
+                    source: 'automate.png'
+            BoxLayout:
+                
+                orientation:"vertical"
+                BoxLayout:
+                    size_hint_y: None
+                    height: "1dp"
+                    Label:
+                        id:label_op
+                        text:"Operation:"
+                    
+                Image:
+                    id:image2
+                    source: 'automate2.png'
+        GridLayout:
+            rows:6
+            spacing:4
+            Button:
+                text: "Reduire"
+                on_press: root.reduire()
+            Button:
+                text: "le passage du géneraliser au simple"
+                on_press: root.gen_simple()
+            Button:
+                text: "le passage du non det au det"
+                on_press: root.det()
+            Button:
+                text: "le complement"
+                on_press: root.complement()
+            Button:
+                text: "le mirroir"
+                on_press: root.mirroir()
+            BoxLayout:
+                BoxLayout:
+                    orientation:"vertical"
+                    TextInput:
+                        id: mot
+                        font_size:30
+                        multiline: False
+                    Label:
+                        id:motexist
+                        text:""
+                Button:
+                    text: "la reconnaissance des mots"
+                    on_press: root.rec()
+               
